@@ -1,0 +1,147 @@
+{% extends 'mielapp/base.html' %}
+
+{% block title %}Pedido #{{ pedido.id }} - Miel App{% endblock %}
+{% block page_title %}Detalle del Pedido #{{ pedido.id }}{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-12">
+        <a href="{% url 'pedidos' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Volver a Pedidos
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-box-seam"></i> Productos del Pedido
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Precio Unit.</th>
+                                <th>Cantidad</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detalle in detalles %}
+                            <tr>
+                                <td>
+                                    <strong>{{ detalle.producto.nombre }}</strong>
+                                    {% if detalle.producto.categoria %}
+                                    <br><small class="text-muted">{{ detalle.producto.categoria.nombre }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>S/ {{ detalle.precio_unitario }}</td>
+                                <td><span class="badge bg-primary">{{ detalle.cantidad }}</span></td>
+                                <td><strong>S/ {{ detalle.subtotal }}</strong></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No hay productos en este pedido</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>TOTAL:</strong></td>
+                                <td><h4 class="mb-0 text-primary">S/ {{ pedido.total }}</h4></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        {% if pedido.notas %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="bi bi-sticky"></i> Notas del Pedido
+            </div>
+            <div class="card-body">
+                <p class="mb-0">{{ pedido.notas }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-info-circle"></i> Información del Pedido
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">Estado:</dt>
+                    <dd class="col-sm-7">
+                        <span class="badge bg-{% if pedido.estado == 'ENTREGADO' %}success{% elif pedido.estado == 'CANCELADO' %}danger{% elif pedido.estado == 'PENDIENTE' %}warning{% else %}info{% endif %}">
+                            {{ pedido.get_estado_display }}
+                        </span>
+                    </dd>
+                    
+                    <dt class="col-sm-5">Cliente:</dt>
+                    <dd class="col-sm-7">
+                        {% if user.rol == 'ADMIN' %}
+                        <a href="{% url 'detalle_cliente' pedido.cliente.id %}">
+                            {{ pedido.cliente.get_full_name|default:pedido.cliente.username }}
+                        </a>
+                        {% else %}
+                        {{ pedido.cliente.get_full_name|default:pedido.cliente.username }}
+                        {% endif %}
+                    </dd>
+                    
+                    <dt class="col-sm-5">Email:</dt>
+                    <dd class="col-sm-7">{{ pedido.cliente.email }}</dd>
+                    
+                    <dt class="col-sm-5">Teléfono:</dt>
+                    <dd class="col-sm-7">{{ pedido.cliente.telefono|default:"No especificado" }}</dd>
+                    
+                    <dt class="col-sm-5">Fecha:</dt>
+                    <dd class="col-sm-7">{{ pedido.fecha_pedido|date:"d/m/Y H:i" }}</dd>
+                    
+                    <dt class="col-sm-5">Actualizado:</dt>
+                    <dd class="col-sm-7">{{ pedido.fecha_actualizacion|date:"d/m/Y H:i" }}</dd>
+                </dl>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="bi bi-geo-alt"></i> Dirección de Envío
+            </div>
+            <div class="card-body">
+                <p class="mb-0">{{ pedido.direccion_envio }}</p>
+            </div>
+        </div>
+        
+        {% if user.rol == 'ADMIN' and pedido.estado != 'ENTREGADO' and pedido.estado != 'CANCELADO' %}
+        <div class="card mt-3">
+            <div class="card-header bg-warning text-white">
+                <i class="bi bi-arrow-repeat"></i> Cambiar Estado
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'actualizar_estado_pedido' pedido.id %}">
+                    {% csrf_token %}
+                    <select name="estado" class="form-select mb-2">
+                        {% for codigo, nombre in pedido.ESTADOS %}
+                        <option value="{{ codigo }}" {% if pedido.estado == codigo %}selected{% endif %}>
+                            {{ nombre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-warning w-100">
+                        <i class="bi bi-check"></i> Actualizar Estado
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

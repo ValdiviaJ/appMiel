@@ -1,0 +1,239 @@
+{% extends 'mielapp/base.html' %}
+
+{% block title %}Reportes - Miel App{% endblock %}
+{% block page_title %}Reportes y Estadísticas{% endblock %}
+
+{% block content %}
+<!-- Resumen General -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card" style="border-left: 4px solid #3498db;">
+            <div class="icon text-primary"><i class="bi bi-currency-dollar"></i></div>
+            <div class="value">S/ {{ resumen.ventas_mes|floatformat:2 }}</div>
+            <div class="label">Ventas del Mes</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-left: 4px solid #2ecc71;">
+            <div class="icon text-success"><i class="bi bi-calendar-check"></i></div>
+            <div class="value">S/ {{ resumen.ventas_año|floatformat:2 }}</div>
+            <div class="label">Ventas del Año</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-left: 4px solid #e74c3c;">
+            <div class="icon text-danger"><i class="bi bi-cart"></i></div>
+            <div class="value">{{ resumen.pedidos_mes }}</div>
+            <div class="label">Pedidos del Mes</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-left: 4px solid #f39c12;">
+            <div class="icon text-warning"><i class="bi bi-people"></i></div>
+            <div class="value">{{ resumen.clientes_nuevos_mes }}</div>
+            <div class="label">Nuevos Clientes</div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráfico de Ventas -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-graph-up"></i> Ventas Mensuales (Últimos 12 Meses)
+            </div>
+            <div class="card-body">
+                <canvas id="ventasMensualesChart" height="80"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-pie-chart"></i> Ventas por Categoría
+            </div>
+            <div class="card-body">
+                <canvas id="categoriesChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Productos y Clientes Top -->
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-trophy"></i> Top 10 Productos Más Vendidos
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Producto</th>
+                                <th>Vendidos</th>
+                                <th>Ingresos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for producto in productos_top %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ producto.nombre }}</td>
+                                <td><span class="badge bg-primary">{{ producto.total_vendido }}</span></td>
+                                <td><strong>S/ {{ producto.ingresos|floatformat:2 }}</strong></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No hay datos disponibles</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-star-fill"></i> Top 10 Clientes
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Cliente</th>
+                                <th>Pedidos</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cliente in clientes_top %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    <a href="{% url 'detalle_cliente' cliente.id %}">
+                                        {{ cliente.get_full_name|default:cliente.username }}
+                                    </a>
+                                </td>
+                                <td><span class="badge bg-info">{{ cliente.num_pedidos }}</span></td>
+                                <td><strong>S/ {{ cliente.total_compras|floatformat:2 }}</strong></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No hay datos disponibles</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> 
+            <strong>Nota:</strong> Los reportes se actualizan en tiempo real basándose en los pedidos con estados: Procesando, Enviado y Entregado.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// Gráfico de Ventas Mensuales
+const ctxVentas = document.getElementById('ventasMensualesChart').getContext('2d');
+// const datosVentas = {{ ventas_mensuales|safe }};
+const datosVentas = JSON.parse(`{{ ventas_mensuales|safe|escapejs }}`);
+
+const ventasChart = new Chart(ctxVentas, {
+    type: 'bar',
+    data: {
+        labels: datosVentas.map(d => d.mes),
+        datasets: [{
+            label: 'Ventas (S/)',
+            data: datosVentas.map(d => d.total),
+            backgroundColor: 'rgba(243, 156, 18, 0.6)',
+            borderColor: '#f39c12',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return 'S/ ' + value.toFixed(2);
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Gráfico de Categorías
+const ctxCategorias = document.getElementById('categoriesChart').getContext('2d');
+
+
+const datosCategorias = JSON.parse(`[
+    {% for cat in ventas_categorias %}
+    {"nombre": "{{ cat.nombre|escapejs }}", "total": {{ cat.total_vendido|default:0 }}}
+    {% if not forloop.last %},{% endif %}
+    {% endfor %}
+]`);
+
+
+
+const colores = [
+    '#f39c12', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6', 
+    '#1abc9c', '#e67e22', '#34495e', '#95a5a6', '#d35400'
+];
+
+const categoriesChart = new Chart(ctxCategorias, {
+    type: 'doughnut',
+    data: {
+        labels: datosCategorias.map(d => d.nombre),
+        datasets: [{
+            data: datosCategorias.map(d => d.total),
+            backgroundColor: colores.slice(0, datosCategorias.length),
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    boxWidth: 15,
+                    padding: 10
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

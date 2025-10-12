@@ -1,0 +1,280 @@
+{% extends 'mielapp/base.html' %}
+
+{% block title %}Dashboard - Miel App{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+{% if user.rol == 'ADMIN' %}
+<!-- Dashboard para Administradores -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card" style="border-left: 4px solid #3498db;">
+            <div class="icon text-primary"><i class="bi bi-box-seam"></i></div>
+            <div class="value">{{ total_productos }}</div>
+            <div class="label">Productos Activos</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-left: 4px solid #2ecc71;">
+            <div class="icon text-success"><i class="bi bi-people"></i></div>
+            <div class="value">{{ total_clientes }}</div>
+            <div class="label">Clientes</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-left: 4px solid #e74c3c;">
+            <div class="icon text-danger"><i class="bi bi-cart"></i></div>
+            <div class="value">{{ pedidos_pendientes }}</div>
+            <div class="label">Pedidos Pendientes</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-left: 4px solid #f39c12;">
+            <div class="icon text-warning"><i class="bi bi-currency-dollar"></i></div>
+            <div class="value">S/ {{ ventas_mes|floatformat:2 }}</div>
+            <div class="label">Ventas del Mes</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-graph-up"></i> Ventas Últimos 6 Meses
+            </div>
+            <div class="card-body">
+                <canvas id="ventasChart" height="80"></canvas>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="bi bi-clock-history"></i> Últimos Pedidos
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Cliente</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pedido in ultimos_pedidos %}
+                            <tr>
+                                <td><a href="{% url 'detalle_pedido' pedido.id %}">#{{ pedido.id }}</a></td>
+                                <td>{{ pedido.cliente.get_full_name|default:pedido.cliente.username }}</td>
+                                <td>{{ pedido.fecha_pedido|date:"d/m/Y H:i" }}</td>
+                                <td>S/ {{ pedido.total }}</td>
+                                <td>
+                                    <span class="badge bg-{% if pedido.estado == 'ENTREGADO' %}success{% elif pedido.estado == 'PENDIENTE' %}warning{% else %}info{% endif %}">
+                                        {{ pedido.get_estado_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">No hay pedidos registrados</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-star"></i> Top 5 Productos
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for producto in productos_top %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ producto.nombre }}
+                        <span class="badge bg-primary rounded-pill">{{ producto.vendidos|default:0 }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center text-muted">Sin ventas aún</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header bg-warning text-white">
+                <i class="bi bi-exclamation-triangle"></i> Stock Bajo
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for producto in productos_stock_bajo %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ producto.nombre }}
+                        <span class="badge bg-danger">{{ producto.stock }} unidades</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center text-success">
+                        <i class="bi bi-check-circle"></i> Todo en orden
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- Dashboard para Clientes -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card bg-gradient" style="background: linear-gradient(135deg, #f39c12, #e67e22); color: rgb(10, 10, 10);">
+            <div class="card-body">
+                <h2><i class="bi bi-flower1"></i> ¡Bienvenido, {{ user.first_name|default:user.username }}!</h2>
+                <p class="mb-0">Explora nuestros productos de miel 100% natural</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="stat-card" style="border-left: 4px solid #3498db;">
+            <div class="icon text-primary"><i class="bi bi-cart-check"></i></div>
+            <div class="value">{{ mis_pedidos|length }}</div>
+            <div class="label">Mis Pedidos Recientes</div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="stat-card" style="border-left: 4px solid #2ecc71;">
+            <div class="icon text-success"><i class="bi bi-box-seam"></i></div>
+            <div class="value">{{ productos_destacados|length }}</div>
+            <div class="label">Productos Disponibles</div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <a href="{% url 'productos' %}" class="text-decoration-none">
+            <div class="stat-card" style="border-left: 4px solid #f39c12; cursor: pointer;">
+                <div class="icon text-warning"><i class="bi bi-shop"></i></div>
+                <div class="label mt-3">Ver Catálogo</div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-clock-history"></i> Mis Últimos Pedidos
+            </div>
+            <div class="card-body">
+                {% if mis_pedidos %}
+                <div class="list-group">
+                    {% for pedido in mis_pedidos %}
+                    <a href="{% url 'detalle_pedido' pedido.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Pedido #{{ pedido.id }}</h6>
+                            <small>{{ pedido.fecha_pedido|date:"d/m/Y" }}</small>
+                        </div>
+                        <p class="mb-1">Total: S/ {{ pedido.total }}</p>
+                        <span class="badge bg-{% if pedido.estado == 'ENTREGADO' %}success{% elif pedido.estado == 'PENDIENTE' %}warning{% else %}info{% endif %}">
+                            {{ pedido.get_estado_display }}
+                        </span>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-center text-muted">Aún no tienes pedidos</p>
+                <div class="text-center">
+                    <a href="{% url 'productos' %}" class="btn btn-primary">Ver Productos</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-star-fill"></i> Productos Destacados
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for producto in productos_destacados %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            {% if producto.imagen %}
+                            <img src="{{ producto.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}" style="height: 150px; object-fit: cover;">
+                            {% else %}
+                            <div style="height: 150px; background: #f39c12; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-image" style="font-size: 50px; color: white;"></i>
+                            </div>
+                            {% endif %}
+                            <div class="card-body p-2">
+                                <h6 class="card-title">{{ producto.nombre }}</h6>
+                                <p class="card-text mb-1"><strong>S/ {{ producto.precio }}</strong></p>
+                                <small class="text-muted">Stock: {{ producto.stock }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if user.rol == 'ADMIN' %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const ctx = document.getElementById('ventasChart').getContext('2d');
+// const datos = {{ datos_grafico|safe }};
+const datos = JSON.parse(`{{ datos_grafico|safe|escapejs }}`);
+
+const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: datos.map(d => d.mes),
+        datasets: [{
+            label: 'Ventas (S/)',
+            data: datos.map(d => d.ventas),
+            borderColor: '#f39c12',
+            backgroundColor: 'rgba(243, 156, 18, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return 'S/ ' + value.toFixed(2);
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

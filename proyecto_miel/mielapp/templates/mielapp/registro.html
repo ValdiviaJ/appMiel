@@ -1,0 +1,116 @@
+{% extends 'mielapp/base.html' %}
+
+{% block title %}Registro - Proyecto Miel{% endblock %}
+
+{% block auth_content %}
+<div class="row justify-content-center align-items-center py-5">
+    <div class="col-md-6">
+        <div class="card shadow-lg border-0" style="border-radius: 20px;">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <div style="font-size: 4rem;">🍯</div>
+                    <h2 class="fw-bold" style="color: #C87F0A;">Crear Cuenta</h2>
+                    <p class="text-muted">Únete a nuestra comunidad</p>
+                </div>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.first_name.id_for_label }}" class="form-label fw-semibold">
+                                Nombre
+                            </label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.first_name.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.last_name.id_for_label }}" class="form-label fw-semibold">
+                                Apellido
+                            </label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.last_name.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold">
+                            <i class="bi bi-person"></i> Usuario
+                        </label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{{ form.username.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">
+                            <i class="bi bi-envelope"></i> Email
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.password1.id_for_label }}" class="form-label fw-semibold">
+                            <i class="bi bi-lock"></i> Contraseña
+                        </label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                            <div class="text-danger small mt-1">{{ form.password1.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="{{ form.password2.id_for_label }}" class="form-label fw-semibold">
+                            <i class="bi bi-lock-fill"></i> Confirmar Contraseña
+                        </label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                            <div class="text-danger small mt-1">{{ form.password2.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-honey w-100 py-3 mb-3" style="font-size: 1.1rem;">
+                        <i class="bi bi-person-plus"></i> Registrarse
+                    </button>
+                    
+                    <div class="text-center">
+                        <p class="mb-0">¿Ya tienes cuenta? 
+                            <a href="{% url 'login' %}" style="color: #F4A623; font-weight: 600;">Inicia sesión</a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #FFF9F0 0%, #FFF4E0 100%);
+    }
+    
+    .btn-honey {
+        background: linear-gradient(135deg, #F4A623 0%, #C87F0A 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-honey:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(244, 166, 35, 0.4);
+        color: white;
+    }
+</style>
+{% endblock %}

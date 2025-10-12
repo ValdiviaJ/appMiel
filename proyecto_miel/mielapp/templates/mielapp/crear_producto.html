@@ -1,0 +1,128 @@
+{% extends 'mielapp/base.html' %}
+
+{% block title %}{% if editar %}Editar{% else %}Crear{% endif %} Producto - Miel App{% endblock %}
+{% block page_title %}{% if editar %}Editar{% else %}Nuevo{% endif %} Producto{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-{% if editar %}pencil{% else %}plus-circle{% endif %}"></i> 
+                {% if editar %}Editar Producto: {{ producto.nombre }}{% else %}Crear Nuevo Producto{% endif %}
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="{{ form.nombre.id_for_label }}" class="form-label">
+                                    <i class="bi bi-tag"></i> Nombre del Producto *
+                                </label>
+                                {{ form.nombre }}
+                                {% if form.nombre.errors %}
+                                    <div class="text-danger small mt-1">{{ form.nombre.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.categoria.id_for_label }}" class="form-label">
+                                    <i class="bi bi-tags"></i> Categoría *
+                                </label>
+                                {{ form.categoria }}
+                                {% if form.categoria.errors %}
+                                    <div class="text-danger small mt-1">{{ form.categoria.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.descripcion.id_for_label }}" class="form-label">
+                            <i class="bi bi-text-paragraph"></i> Descripción *
+                        </label>
+                        {{ form.descripcion }}
+                        {% if form.descripcion.errors %}
+                            <div class="text-danger small mt-1">{{ form.descripcion.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.precio.id_for_label }}" class="form-label">
+                                    <i class="bi bi-currency-dollar"></i> Precio (S/) *
+                                </label>
+                                {{ form.precio }}
+                                {% if form.precio.errors %}
+                                    <div class="text-danger small mt-1">{{ form.precio.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.stock.id_for_label }}" class="form-label">
+                                    <i class="bi bi-box"></i> Stock *
+                                </label>
+                                {{ form.stock }}
+                                {% if form.stock.errors %}
+                                    <div class="text-danger small mt-1">{{ form.stock.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.activo.id_for_label }}" class="form-label">
+                                    <i class="bi bi-toggle-on"></i> Estado
+                                </label>
+                                <div class="form-check form-switch">
+                                    {{ form.activo }}
+                                    <label class="form-check-label" for="{{ form.activo.id_for_label }}">
+                                        Producto activo
+                                    </label>
+                                </div>
+                                {% if form.activo.errors %}
+                                    <div class="text-danger small mt-1">{{ form.activo.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.imagen.id_for_label }}" class="form-label">
+                            <i class="bi bi-image"></i> Imagen del Producto
+                        </label>
+                        {{ form.imagen }}
+                        {% if form.imagen.errors %}
+                            <div class="text-danger small mt-1">{{ form.imagen.errors.0 }}</div>
+                        {% endif %}
+                        {% if editar and producto.imagen %}
+                        <div class="mt-2">
+                            <small class="text-muted">Imagen actual:</small><br>
+                            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" style="max-width: 200px; border-radius: 8px; margin-top: 10px;">
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'productos' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> {% if editar %}Actualizar{% else %}Crear{% endif %} Producto
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

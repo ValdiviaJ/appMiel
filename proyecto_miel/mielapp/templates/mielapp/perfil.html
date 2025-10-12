@@ -1,0 +1,141 @@
+{% extends 'mielapp/base.html' %}
+
+{% block title %}Mi Perfil - Miel App{% endblock %}
+{% block page_title %}Mi Perfil{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    {% if user.imagen %}
+                    <img src="{{ user.imagen.url }}" alt="{{ user.username }}" 
+                         style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid #f39c12;">
+                    {% else %}
+                    <div style="width: 150px; height: 150px; border-radius: 50%; background: #f39c12; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 4px solid #e67e22;">
+                        <span style="font-size: 60px; color: white; font-weight: bold;">{{ user.username|first|upper }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <h4>{{ user.get_full_name|default:user.username }}</h4>
+                <p class="text-muted">@{{ user.username }}</p>
+                <span class="badge bg-primary">{{ user.get_rol_display }}</span>
+                <hr>
+                <div class="text-start">
+                    <p class="mb-2"><i class="bi bi-envelope"></i> <strong>Email:</strong> {{ user.email }}</p>
+                    <p class="mb-2"><i class="bi bi-telephone"></i> <strong>Teléfono:</strong> {{ user.telefono|default:"No especificado" }}</p>
+                    <p class="mb-2"><i class="bi bi-calendar"></i> <strong>Miembro desde:</strong> {{ user.fecha_registro|date:"d/m/Y" }}</p>
+                </div>
+                <hr>
+                <a href="{% url 'cambiar_password' %}" class="btn btn-warning w-100">
+                    <i class="bi bi-key"></i> Cambiar Contraseña
+                </a>
+            </div>
+        </div>
+        
+        {% if stats %}
+        <div class="card mt-3">
+            <div class="card-header bg-info text-white">
+                <i class="bi bi-graph-up"></i> Mis Estadísticas
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span><i class="bi bi-cart"></i> Total de Pedidos:</span>
+                    <strong>{{ stats.total_pedidos }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span><i class="bi bi-currency-dollar"></i> Total Gastado:</span>
+                    <strong>S/ {{ stats.total_gastado|floatformat:2 }}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span><i class="bi bi-clock"></i> Pendientes:</span>
+                    <strong>{{ stats.pedidos_pendientes }}</strong>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-pencil"></i> Editar Información Personal
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                <i class="bi bi-person"></i> Nombre
+                            </label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                <i class="bi bi-person"></i> Apellidos
+                            </label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.last_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">
+                            <i class="bi bi-envelope"></i> Email
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.telefono.id_for_label }}" class="form-label">
+                            <i class="bi bi-telephone"></i> Teléfono
+                        </label>
+                        {{ form.telefono }}
+                        {% if form.telefono.errors %}
+                            <div class="text-danger small mt-1">{{ form.telefono.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.direccion.id_for_label }}" class="form-label">
+                            <i class="bi bi-geo-alt"></i> Dirección
+                        </label>
+                        {{ form.direccion }}
+                        {% if form.direccion.errors %}
+                            <div class="text-danger small mt-1">{{ form.direccion.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.imagen.id_for_label }}" class="form-label">
+                            <i class="bi bi-image"></i> Foto de Perfil
+                        </label>
+                        {{ form.imagen }}
+                        {% if form.imagen.errors %}
+                            <div class="text-danger small mt-1">{{ form.imagen.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <hr>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Guardar Cambios
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

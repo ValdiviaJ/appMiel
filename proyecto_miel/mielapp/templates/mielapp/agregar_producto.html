@@ -1,0 +1,158 @@
+{% extends 'mielapp/base.html' %}
+
+{% block title %}Agregar Productos - Pedido #{{ pedido.id }}{% endblock %}
+{% block page_title %}Agregar Productos al Pedido #{{ pedido.id }}{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-6">
+        <a href="{% url 'pedidos' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Volver a Pedidos
+        </a>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{% url 'detalle_pedido' pedido.id %}" class="btn btn-success">
+            <i class="bi bi-check-circle"></i> Finalizar Pedido
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-plus-circle"></i> Agregar Producto
+            </div>
+            <div class="card-body">
+                <form method="post" id="formAgregarProducto">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.producto.id_for_label }}" class="form-label">
+                            <i class="bi bi-box"></i> Producto *
+                        </label>
+                        {{ form.producto }}
+                        {% if form.producto.errors %}
+                            <div class="text-danger small mt-1">{{ form.producto.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.cantidad.id_for_label }}" class="form-label">
+                            <i class="bi bi-hash"></i> Cantidad *
+                        </label>
+                        {{ form.cantidad }}
+                        {% if form.cantidad.errors %}
+                            <div class="text-danger small mt-1">{{ form.cantidad.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.precio_unitario.id_for_label }}" class="form-label">
+                            <i class="bi bi-currency-dollar"></i> Precio Unitario
+                        </label>
+                        {{ form.precio_unitario }}
+                        <small class="text-muted">Se llenará automáticamente</small>
+                        {% if form.precio_unitario.errors %}
+                            <div class="text-danger small mt-1">{{ form.precio_unitario.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-plus"></i> Agregar Producto
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header bg-info text-white">
+                <i class="bi bi-info-circle"></i> Info del Pedido
+            </div>
+            <div class="card-body">
+                <p><strong>Cliente:</strong><br>{{ pedido.cliente.get_full_name|default:pedido.cliente.username }}</p>
+                <p><strong>Estado:</strong><br>
+                    <span class="badge bg-{{ pedido.estado|lower }}">{{ pedido.get_estado_display }}</span>
+                </p>
+                <p><strong>Total Actual:</strong><br>
+                    <span class="h4 text-primary">S/ {{ pedido.total }}</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-list-check"></i> Productos en el Pedido
+            </div>
+            <div class="card-body">
+                {% if detalles %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Precio Unit.</th>
+                                <th>Cantidad</th>
+                                <th>Subtotal</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detalle in detalles %}
+                            <tr>
+                                <td>
+                                    <strong>{{ detalle.producto.nombre }}</strong>
+                                    {% if detalle.producto.categoria %}
+                                    <br><small class="text-muted">{{ detalle.producto.categoria.nombre }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>S/ {{ detalle.precio_unitario }}</td>
+                                <td><span class="badge bg-primary">{{ detalle.cantidad }}</span></td>
+                                <td><strong>S/ {{ detalle.subtotal }}</strong></td>
+                                <td>
+                                    <a href="{% url 'eliminar_detalle_pedido' detalle.id %}" 
+                                       class="btn btn-sm btn-danger"
+                                       onclick="return confirm('¿Eliminar este producto del pedido?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-active">
+                                <td colspan="3" class="text-end"><strong>TOTAL:</strong></td>
+                                <td colspan="2"><h4 class="mb-0 text-primary">S/ {{ pedido.total }}</h4></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-inbox" style="font-size: 50px;"></i>
+                    <p class="mt-3">No hay productos en este pedido</p>
+                    <p>Usa el formulario de la izquierda para agregar productos</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-completar precio cuando se selecciona un producto
+document.getElementById('{{ form.producto.id_for_label }}').addEventListener('change', function() {
+    const select = this;
+    const selectedOption = select.options[select.selectedIndex];
+    const precioInput = document.getElementById('{{ form.precio_unitario.id_for_label }}');
+    
+    // Obtener el precio del producto mediante AJAX o desde data attributes
+    if (selectedOption.value) {
+        // Aquí puedes hacer una petición AJAX para obtener el precio
+        // Por ahora lo dejamos así para que se ingrese manualmente
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends 'mielapp/base.html' %}
+
+{% block title %}Finalizar Compra - Miel App{% endblock %}
+{% block page_title %}✅ Finalizar Compra{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-geo-alt"></i> Datos de Envío
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Dirección de Envío *</strong></label>
+                        <textarea name="direccion_envio" class="form-control" rows="3" required placeholder="Ingresa tu dirección completa...">{{ direccion_usuario }}</textarea>
+                        <small class="text-muted">Asegúrate de incluir referencias claras para facilitar la entrega.</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Notas Adicionales (Opcional)</strong></label>
+                        <textarea name="notas" class="form-control" rows="2" placeholder="¿Alguna instrucción especial?"></textarea>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i> 
+                        <strong>Importante:</strong> Verifica que todos los datos sean correctos antes de confirmar tu pedido.
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'ver_carrito' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Volver al Carrito
+                        </a>
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-check-circle"></i> Confirmar Pedido
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <i class="bi bi-box-seam"></i> Productos a Enviar
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items_carrito %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if item.producto.imagen %}
+                                        <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombre }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 5px; margin-right: 10px;">
+                                        {% endif %}
+                                        <span>{{ item.producto.nombre }}</span>
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-primary">{{ item.cantidad }}</span></td>
+                                <td>S/ {{ item.producto.precio }}</td>
+                                <td><strong>S/ {{ item.subtotal }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-active">
+                                <td colspan="3" class="text-end"><strong>TOTAL:</strong></td>
+                                <td><h5 class="mb-0 text-primary">S/ {{ total }}</h5></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card" style="position: sticky; top: 20px;">
+            <div class="card-header bg-success text-white">
+                <i class="bi bi-shield-check"></i> Compra Segura
+            </div>
+            <div class="card-body">
+                <h5 class="mb-3">Total a Pagar</h5>
+                <div class="display-4 text-success mb-3">S/ {{ total }}</div>
+                
+                <hr>
+                
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle text-success"></i> 
+                        Envío gratis
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle text-success"></i> 
+                        Productos 100% naturales
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle text-success"></i> 
+                        Garantía de calidad
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle text-success"></i> 
+                        Entrega en 24-48 horas
+                    </li>
+                </ul>
+                
+                <hr>
+                
+                <small class="text-muted">
+                    <i class="bi bi-info-circle"></i> 
+                    Al confirmar tu pedido, recibirás un correo de confirmación con los detalles de tu compra.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

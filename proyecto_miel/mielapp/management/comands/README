@@ -1,0 +1,329 @@
+# 🍯 Proyecto Miel - Sistema de Venta de Miel
+
+Sistema completo de gestión y venta de productos de miel desarrollado con Django 5.
+
+## 📋 Características
+
+- ✅ Dashboard con estadísticas y gráficos
+- ✅ CRUD completo de productos
+- ✅ Gestión de pedidos
+- ✅ Gestión de clientes
+- ✅ Reportes y estadísticas
+- ✅ Sistema de autenticación con roles (Admin/Cliente)
+- ✅ Perfiles de usuario personalizables
+- ✅ Diseño responsive con Bootstrap 5
+- ✅ Gráficos interactivos con Chart.js
+
+## 🚀 Instalación
+
+### 1. Clonar o crear la estructura del proyecto
+
+```bash
+mkdir proyecto_miel
+cd proyecto_miel
+```
+
+### 2. Crear entorno virtual
+
+```bash
+python -m venv venv
+
+# En Windows
+venv\Scripts\activate
+
+# En Linux/Mac
+source venv/bin/activate
+```
+
+### 3. Instalar dependencias
+
+```bash
+pip install django pillow
+```
+
+### 4. Crear la estructura de carpetas
+
+Asegúrate de tener la siguiente estructura:
+
+```
+proyecto_miel/
+├── manage.py
+├── proyecto_miel/
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+└── mielapp/
+    ├── __init__.py
+    ├── admin.py
+    ├── models.py
+    ├── views.py
+    ├── forms.py
+    ├── urls.py
+    ├── management/
+    │   └── commands/
+    │       ├── __init__.py
+    │       └── cargar_datos.py
+    ├── templates/
+    │   └── mielapp/
+    │       ├── base.html
+    │       ├── home.html
+    │       ├── login.html
+    │       ├── registro.html
+    │       ├── productos.html
+    │       ├── crear_producto.html
+    │       ├── pedidos.html
+    │       ├── detalle_pedido.html
+    │       ├── crear_pedido.html
+    │       ├── clientes.html
+    │       ├── perfil.html
+    │       ├── cambiar_password.html
+    │       └── reportes.html
+    └── static/
+        └── mielapp/
+            ├── css/
+            ├── js/
+            └── img/
+```
+
+### 5. Crear carpetas necesarias
+
+```bash
+# Crear carpeta de management commands
+mkdir -p mielapp/management/commands
+touch mielapp/management/__init__.py
+touch mielapp/management/commands/__init__.py
+
+# Crear carpetas de templates y static
+mkdir -p mielapp/templates/mielapp
+mkdir -p mielapp/static/mielapp/{css,js,img}
+mkdir -p media/productos
+mkdir -p media/usuarios
+```
+
+### 6. Aplicar migraciones
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+### 7. Cargar datos de prueba
+
+```bash
+python manage.py cargar_datos
+```
+
+Esto creará:
+- **Usuario Admin**: `admin` / `admin123`
+- **Clientes**: `cliente1`, `cliente2`, `cliente3` / `cliente123`
+- Categorías de productos
+- 8 productos de ejemplo
+- 10 pedidos de prueba
+
+### 8. Ejecutar el servidor
+
+```bash
+# Para acceso local
+python manage.py runserver
+
+# Para acceso desde red local (celular)
+python manage.py runserver 0.0.0.0:8000
+```
+
+### 9. Acceder a la aplicación
+
+- **Web**: http://localhost:8000
+- **Desde celular**: http://[IP_DE_TU_PC]:8000
+- **Admin Django**: http://localhost:8000/admin
+
+## 👥 Usuarios de Prueba
+
+| Usuario | Contraseña | Rol |
+|---------|------------|-----|
+| admin | admin123 | Administrador |
+| cliente1 | cliente123 | Cliente |
+| cliente2 | cliente123 | Cliente |
+| cliente3 | cliente123 | Cliente |
+
+## 📱 Módulos Disponibles
+
+### Para Administradores
+- 📊 **Dashboard**: Estadísticas de ventas, productos top, stock bajo
+- 📦 **Productos**: Crear, editar, eliminar productos
+- 🏷️ **Categorías**: Gestionar categorías de productos
+- 🛒 **Pedidos**: Ver y gestionar todos los pedidos
+- 👥 **Clientes**: Administrar clientes registrados
+- 📈 **Reportes**: Gráficos y estadísticas detalladas
+- 👤 **Perfil**: Editar información personal
+
+### Para Clientes
+- 🏠 **Inicio**: Ver productos destacados
+- 📦 **Productos**: Explorar catálogo completo
+- 🛒 **Mis Pedidos**: Ver historial de compras
+- 👤 **Perfil**: Editar información personal
+
+## 🎨 Tecnologías Utilizadas
+
+- **Backend**: Django 5
+- **Frontend**: Bootstrap 5, Bootstrap Icons
+- **Gráficos**: Chart.js
+- **Base de datos**: SQLite (desarrollo)
+- **Autenticación**: Django Auth con modelo personalizado
+
+## 🔧 Configuración Adicional
+
+### Cambiar SECRET_KEY en producción
+
+En `proyecto_miel/settings.py`, genera una nueva SECRET_KEY:
+
+```python
+from django.core.management.utils import get_random_secret_key
+print(get_random_secret_key())
+```
+
+### Configurar archivos media
+
+Los archivos subidos se guardan en la carpeta `media/`:
+- Productos: `media/productos/`
+- Usuarios: `media/usuarios/`
+
+### Acceso desde celular en red local
+
+1. Obtén tu IP local:
+   ```bash
+   # Windows
+   ipconfig
+   
+   # Linux/Mac
+   ifconfig
+   ```
+
+2. Ejecuta el servidor:
+   ```bash
+   python manage.py runserver 0.0.0.0:8000
+   ```
+
+3. Accede desde tu celular:
+   ```
+   http://[TU_IP]:8000
+   ```
+
+## 📸 Capturas de Pantalla
+
+### Dashboard Admin
+- Estadísticas generales
+- Gráfico de ventas mensuales
+- Top 5 productos más vendidos
+- Productos con stock bajo
+
+### Gestión de Productos
+- Lista con filtros por categoría
+- Crear/editar productos con imágenes
+- Control de stock y precios
+
+### Reportes
+- Ventas mensuales (últimos 12 meses)
+- Productos más vendidos
+- Clientes top
+- Ventas por categoría
+
+## 🛠️ Comandos Útiles
+
+```bash
+# Crear superusuario adicional
+python manage.py createsuperuser
+
+# Recargar datos de prueba
+python manage.py flush  # Elimina todos los datos
+python manage.py cargar_datos  # Vuelve a cargar
+
+# Crear migraciones
+python manage.py makemigrations
+
+# Aplicar migraciones
+python manage.py migrate
+
+# Recolectar archivos estáticos (para producción)
+python manage.py collectstatic
+```
+
+## 📁 Estructura de la Base de Datos
+
+### Modelos principales:
+
+- **Usuario**: Usuarios con roles (Admin/Cliente)
+- **Categoría**: Categorías de productos
+- **Producto**: Productos con precio, stock, imagen
+- **Pedido**: Pedidos de clientes
+- **DetallePedido**: Productos en cada pedido
+
+## 🔐 Seguridad
+
+- Autenticación requerida en todas las vistas
+- Decoradores para verificar roles
+- Protección CSRF en formularios
+- Validación de permisos por rol
+
+## 🐛 Solución de Problemas
+
+### Error: No module named 'PIL'
+```bash
+pip install pillow
+```
+
+### Error: Tabla no existe
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+### Las imágenes no se muestran
+Verifica en `settings.py`:
+```python
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+```
+
+Y en `urls.py` principal:
+```python
+from django.conf import settings
+from django.conf.urls.static import static
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+```
+
+## 📝 Notas Importantes
+
+1. **SECRET_KEY**: Cambia la SECRET_KEY en producción
+2. **DEBUG**: Configura `DEBUG = False` en producción
+3. **ALLOWED_HOSTS**: Ajusta según tu dominio en producción
+4. **Base de datos**: Considera usar PostgreSQL/MySQL en producción
+
+## 🚀 Despliegue en Producción
+
+Para desplegar en producción, considera:
+
+1. Cambiar a una base de datos más robusta (PostgreSQL)
+2. Configurar `DEBUG = False`
+3. Configurar `ALLOWED_HOSTS` correctamente
+4. Usar un servidor web (Nginx + Gunicorn)
+5. Configurar archivos estáticos con `collectstatic`
+6. Implementar HTTPS
+
+## 📞 Soporte
+
+Si encuentras algún problema, verifica:
+- Que todas las dependencias estén instaladas
+- Que las migraciones se hayan aplicado correctamente
+- Que la estructura de carpetas sea correcta
+- Que los datos de prueba se hayan cargado
+
+## 📄 Licencia
+
+Este proyecto es de código abierto y está disponible para uso educativo.
+
+---
+
+**¡Disfruta tu sistema de venta de miel! 🍯**

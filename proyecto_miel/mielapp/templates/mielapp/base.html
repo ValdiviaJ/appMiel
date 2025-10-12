@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Miel App{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --sidebar-width: 250px;
+            --primary-color: #f39c12;
+            --secondary-color: #e67e22;
+            --dark-color: #2c3e50;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        
+        .sidebar .logo {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 20px;
+        }
+        
+        .sidebar .logo i {
+            font-size: 40px;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.9);
+            padding: 12px 25px;
+            margin: 5px 15px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        .sidebar .nav-link:hover {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .sidebar .nav-link.active {
+            background: white;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            background: #f8f9fa;
+        }
+        
+        .top-navbar {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .content-wrapper {
+            padding: 30px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary-color);
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-card .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+        
+        .stat-card .label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar .logo span {
+                display: none;
+            }
+            
+            .sidebar .nav-link span {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="bi bi-flower1"></i>
+            <span>Miel App</span>
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+                <i class="bi bi-speedometer2"></i>
+                <span>Inicio</span>
+            </a>
+            <a class="nav-link {% if 'productos' in request.path %}active{% endif %}" href="{% url 'productos' %}">
+                <i class="bi bi-box-seam"></i>
+                <span>Productos</span>
+            </a>
+            <a class="nav-link {% if 'pedidos' in request.path %}active{% endif %}" href="{% url 'pedidos' %}">
+                <i class="bi bi-cart3"></i>
+                <span>Pedidos</span>
+            </a>
+            {% if user.rol == 'CLIENTE' %}
+            <a class="nav-link {% if 'carrito' in request.path %}active{% endif %}" href="{% url 'ver_carrito' %}" style="position: relative;">
+                <i class="bi bi-cart4"></i>
+                <span>Mi Carrito</span>
+                {% if user.carrito.count > 0 %}
+                <span class="badge bg-danger rounded-pill" style="position: absolute; top: 8px; right: 20px; font-size: 0.7rem;">
+                    {{ user.carrito.count }}
+                </span>
+                {% endif %}
+            </a>
+            {% endif %}
+            {% if user.rol == 'ADMIN' %}
+            <a class="nav-link {% if 'clientes' in request.path %}active{% endif %}" href="{% url 'clientes' %}">
+                <i class="bi bi-people"></i>
+                <span>Clientes</span>
+            </a>
+            <a class="nav-link {% if 'categorias' in request.path %}active{% endif %}" href="{% url 'categorias' %}">
+                <i class="bi bi-tags"></i>
+                <span>Categorías</span>
+            </a>
+            <a class="nav-link {% if 'reportes' in request.path %}active{% endif %}" href="{% url 'reportes' %}">
+                <i class="bi bi-graph-up"></i>
+                <span>Reportes</span>
+            </a>
+            {% endif %}
+            <a class="nav-link {% if 'perfil' in request.path %}active{% endif %}" href="{% url 'perfil' %}">
+                <i class="bi bi-person-circle"></i>
+                <span>Perfil</span>
+            </a>
+            <a class="nav-link" href="{% url 'logout' %}">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Salir</span>
+            </a>
+        </nav>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navbar -->
+        <div class="top-navbar">
+            <h4 class="mb-0">{% block page_title %}Dashboard{% endblock %}</h4>
+            <div class="user-info">
+                <div class="user-avatar">
+                    {% if user.imagen %}
+                    <img src="{{ user.imagen.url }}" alt="{{ user.username }}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                    {% else %}
+                    {{ user.username|first|upper }}
+                    {% endif %}
+                </div>
+                <div>
+                    <div style="font-weight:bold;">{{ user.first_name|default:user.username }}</div>
+                    <small class="text-muted">{{ user.get_rol_display }}</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="content-wrapper">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    {% else %}
+    <!-- Content for non-authenticated users -->
+    <div style="min-height: 100vh;">
+        {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% block auth_content %}{% endblock %}
+    </div>
+    {% endif %}
+    
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
